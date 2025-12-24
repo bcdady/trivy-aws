@@ -34,14 +34,14 @@ func NewCmd() *cobra.Command {
 	reportFlagGroup.ShowSuppressed = nil     // disable '--show-suppressed'
 
 	globalFlags := trivyflag.NewGlobalFlagGroup()
-	awsFlags := &flag.Flags{
+	awsFlags := flag.Flags{
 		BaseFlags: trivyflag.Flags{
-			GlobalFlagGroup:  globalFlags,
-			AWSFlagGroup:     trivyflag.NewAWSFlagGroup(),
-			MisconfFlagGroup: trivyflag.NewMisconfFlagGroup(),
-			RegoFlagGroup:    trivyflag.NewRegoFlagGroup(),
-			ReportFlagGroup:  reportFlagGroup,
-			DBFlagGroup: &trivyflag.DBFlagGroup{
+			globalFlags,
+			trivyflag.NewAWSFlagGroup(),
+			trivyflag.NewMisconfFlagGroup(),
+			trivyflag.NewRegoFlagGroup(),
+			reportFlagGroup,
+			&trivyflag.DBFlagGroup{
 				NoProgress: trivyflag.NoProgressFlag.Clone(),
 			},
 		},
@@ -93,7 +93,8 @@ The following services are supported:
 				return err
 			}
 
-			globalOptions, err := globalFlags.ToOptions()
+			flags := trivyflag.Flags{globalFlags}
+			globalOptions, err := flags.ToOptions(args)
 			if err != nil {
 				return err
 			}
